@@ -1,5 +1,6 @@
-import requests
 import time
+
+import requests
 from fastapi import FastAPI
 from fastapi.background import BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,7 +18,8 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-# This should be a different database
+# https://app.redislabs.com/#/databases
+# AWS
 redis = get_redis_connection(
     host=HOST,
     port=PORT,
@@ -68,3 +70,4 @@ def order_completed(order: Order):
     time.sleep(2)
     order.status = 'completed'
     order.save()
+    redis.xadd('order_completed', order.dict(), '*')
